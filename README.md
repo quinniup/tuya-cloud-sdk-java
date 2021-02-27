@@ -15,7 +15,7 @@ Tuya Cloud API SDK for JAVA
 ## Source installation
 1. Go to [Github code hosting address](https://registry.code.tuya-inc.top/shengjun.zhang/tuya_cloud_sdk_java) to download the source code compression package.
 2. Unzip the source code package to a suitable location for your project.
-3. Reference the corresponding module code in the code, please refer to the example.
+3. For the reference of the corresponding module code in the code, see the example.
 
 ## Reference jar package installation
 1. Contact relevant personnel to obtain the jar package.
