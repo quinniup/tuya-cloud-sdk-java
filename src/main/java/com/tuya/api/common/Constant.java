@@ -24,6 +24,11 @@ public class Constant {
     public static final String ENDPOINT = "endpoint";
 
     /**
+     *
+     */
+    public static final String NONCE_HEADER_NAME = "nonce";
+
+    /**
      * 用于存储开发者信息
      */
     public static final Map<String, String> map = new ConcurrentHashMap<String, String>();

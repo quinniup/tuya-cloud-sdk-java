@@ -1,17 +1,18 @@
 package com.tuya.api.client;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.tuya.api.client.token.TokenClient;
 import com.tuya.api.common.*;
 import com.tuya.api.exception.TuyaCloudSDKException;
+import com.tuya.api.utils.GsonUtil;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -19,24 +20,16 @@ import java.util.Map;
  */
 public class CommonClient {
 
-
     /**
      * 重试次数
      */
     private static final int maxRetry = 3;
 
-
     /**
      * 执行请求
-     *
-     * @param url 请求url
-     * @param method  请求方法
-     * @param header 增加的请求头
-     * @param body 请求体
-     * @return
      */
-    public static TuyaResult sendRequest(String url, HttpMethod method, Map<String, String> header, Object body) {
-        TuyaResult result = null;
+    public static <T> TuyaResult<T> sendRequest(String url, HttpMethod method, Map<String, String> header, Object body) {
+        TuyaResult<T> result = null;
         int retry = CommonClient.maxRetry;
         boolean retryFlag = Boolean.TRUE;
 
@@ -61,51 +54,44 @@ public class CommonClient {
 
     /**
      * 执行请求
-     *
-     * @param url
-     * @param method
-     * @param header
-     * @param body
-     * @return
      */
-    private static TuyaResult execute(String url, HttpMethod method, Map<String, String> header, Object body) {
-        // 验证开发者信息
-        if (MapUtils.isEmpty(Constant.map)) {
-            throw new TuyaCloudSDKException("未初始化开发者信息！");
-        }
-
-        if (StringUtils.isNotBlank(url) && !url.startsWith("http")) {
-            url = Constant.map.get(Constant.ENDPOINT) + url;
-        }
-
-        Headers headers = RequestHandler.getHeader(true, header);
-
-        String bodyStr = "";
-        if (body != null) {
-            bodyStr = new Gson().toJson(body);
-        }
-
-        Response response;
-        if (HttpMethod.GET.equals(method)) {
-            response = RequestHandler.getRequest(url, headers);
-        } else if (HttpMethod.POST.equals(method)) {
-            response = RequestHandler.postRequest(url, bodyStr, headers);
-        } else if (HttpMethod.PUT.equals(method)) {
-            response = RequestHandler.putRequest(url, bodyStr, headers);
-        } else if (HttpMethod.DELETE.equals(method)) {
-            response = RequestHandler.deleteRequest(url, bodyStr, headers);
-        } else {
-            throw new TuyaCloudSDKException("Method only support GET, POST, PUT, DELETE");
-        }
-
+    private static <T> TuyaResult<T> execute(String url, HttpMethod method, Map<String, String> header, Object body) {
         try {
-            TuyaResult result = JSONObject.parseObject(response.body().string(), TuyaResult.class);
+            // 验证开发者信息
+            if (MapUtils.isEmpty(Constant.map)) {
+                throw new TuyaCloudSDKException("未初始化开发者信息！");
+            }
+
+            if (StringUtils.isNotBlank(url) && !url.startsWith("http")) {
+                url = Constant.map.get(Constant.ENDPOINT) + url;
+            }
+            String bodyStr = "";
+            if (body != null) {
+                bodyStr = new Gson().toJson(body);
+            }
+            Request.Builder request;
+            if (HttpMethod.GET.equals(method)) {
+                request = RequestHandler.getRequest(url);
+            } else if (HttpMethod.POST.equals(method)) {
+                request = RequestHandler.postRequest(url, bodyStr);
+            } else if (HttpMethod.PUT.equals(method)) {
+                request = RequestHandler.putRequest(url, bodyStr);
+            } else if (HttpMethod.DELETE.equals(method)) {
+                request = RequestHandler.deleteRequest(url, bodyStr);
+            } else {
+                throw new TuyaCloudSDKException("Method only support GET, POST, PUT, DELETE");
+            }
+            Headers headers = RequestHandler.getHeader(true, request.build(), bodyStr, header);
+            request.headers(headers);
+            request.url(Constant.map.get(Constant.ENDPOINT) + RequestHandler.getPathAndSortParam(new URL(url)));
+            Response response = RequestHandler.doRequest(request.build());
+
+            TuyaResult result = GsonUtil.gson().fromJson(response.body().string(), TuyaResult.class);
             if (!result.getSuccess()) {
                 throw new TuyaCloudSDKException(result.getCode(), ErrorCode.map.get(result.getCode()));
             }
-
             return result;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new TuyaCloudSDKException(e.getMessage());
         }
     }
