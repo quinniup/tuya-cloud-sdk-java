@@ -1,8 +1,16 @@
 package com.tuya.api;
 
+import com.tuya.api.client.device.DeviceClient;
+import com.tuya.api.client.device.models.CodeValuePair;
+import com.tuya.api.client.device.models.PostDeviceCommandReq;
 import com.tuya.api.common.ClientConfig;
 import com.tuya.api.common.RegionEnum;
+import com.tuya.api.common.TuyaResult;
+import com.tuya.api.utils.GsonUtil;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TokenClientTest {
 
@@ -26,9 +34,7 @@ public class TokenClientTest {
 //            TuyaResult result = UserClient.getUsers(schema,1,3);
 //            System.out.println(result.getResult());
 
-
-
-//            String deviceId = "vdevo123131xxxxxx";
+            String deviceId = "vdevo123131xxxxxx";
 
 //            // 获取设备信息示例
 //            TuyaResult result = DeviceClient.getDevice(deviceId);
@@ -39,7 +45,6 @@ public class TokenClientTest {
 //            System.out.println(result);
 
 
-
 //            String category = "cz";
 //
 //            // 根据category获取function列表示例
@@ -47,19 +52,21 @@ public class TokenClientTest {
 //            System.out.println(result);
 //
 //            // 获取设备功能点的信息示例
-//            TuyaResult result = DeviceClient.getDeviceStatus(deviceId);
-//            System.out.println(result);
+            TuyaResult result = DeviceClient.getDeviceStatus(deviceId);
+            System.out.println(GsonUtil.gson().toJson(result));
 //
 //            // 批量获取设备状态示例
 //            TuyaResult result = DeviceClient.getDeviceList(deviceId);
 //            System.out.println(result);
 //
 //            // 设备指令下发示例
-//            List<CodeValuePair> list = new ArrayList<CodeValuePair>(){{add(new CodeValuePair("switch_led", true));
-//            add(new CodeValuePair("bright", 30));}};
-//            PostDeviceCommandReq req = new PostDeviceCommandReq(deviceId, list);
-//            TuyaResult result = DeviceClient.PostDeviceCommand(req);
-//            System.out.println(result);
+            List<CodeValuePair> list = new ArrayList<CodeValuePair>() {{
+                add(new CodeValuePair("switch_1", true));
+                add(new CodeValuePair("bright", 30));
+            }};
+            PostDeviceCommandReq req = new PostDeviceCommandReq(deviceId, list);
+            result = DeviceClient.postDeviceCommand(req);
+            System.out.println(GsonUtil.gson().toJson(result));
 
 
 //            String uid = "12312323432ui";

@@ -33,7 +33,7 @@ public class TokenCache {
         if (StringUtils.isNotBlank(accessToken)) {
             try {
                 // 缓存命中，过期时间在30s后，直接返回，否则需要刷新
-                long expireTime = Long.valueOf(cache.getIfPresent(EXPIRE_TIME));
+                long expireTime = Long.parseLong(cache.getIfPresent(EXPIRE_TIME));
                 if (expireTime > (new DateTime().getMillis()/1000 + 30)) {
                     return accessToken;
                 }

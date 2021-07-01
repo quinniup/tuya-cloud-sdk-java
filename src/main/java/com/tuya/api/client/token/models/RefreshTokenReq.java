@@ -4,6 +4,9 @@ import com.tuya.api.common.ApiRequest;
 import com.tuya.api.common.HttpMethod;
 import com.tuya.api.common.TokenCache;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 刷新token请求类
  */
